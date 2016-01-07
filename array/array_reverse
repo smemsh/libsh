@@ -1,0 +1,18 @@
+#
+# Returns a sequence reversed from the original input
+#
+
+source ~/lib/sh/include
+require freturn
+
+array_reverse ()
+{
+	local -i i
+	local -a a
+
+	for ((i = $#; i > 0; i--)); do
+		a+=(${!i})
+	done
+
+	freturn ${a[@]}
+}

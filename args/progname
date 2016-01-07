@@ -1,0 +1,8 @@
+#
+# returns the canonicalized name of the program file, or its
+# invocation name, depending on what the user requested.
+#
+
+get_invocation_name	() { printf $(basename $0); }
+get_program_name	() { printf $(basename $(readlink -fs $0)); }
+progname		() { get_invocation_name $@; }

@@ -1,0 +1,16 @@
+#
+# takes a time_t (%s) time formatted string and converts to %Y%m%d%H%M%S
+#
+
+source ~/lib/sh/include
+require freturn
+
+time_t_to_timefmt ()
+{
+	local +i from=$1
+	local +i to
+
+	to=$(date -d @$from +%Y%m%d%H%M%S)
+
+	freturn $to
+}

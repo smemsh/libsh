@@ -1,0 +1,19 @@
+#
+# check that an ocassoc string has sanity
+#   - only alnums
+#   - one or more slashes
+#
+
+tw_assoc_sane ()
+{
+	# at least one slash i.e. project/label (can have any number)
+	#
+	if ! [[ $1 =~ / ]]; then
+		false; return; fi
+
+	# only alphanumerics and dashes allowed for us in the
+	# project names and labels
+	#
+	if [[ $1 =~ [^[:alnum:]-/] ]]; then
+		false; return; fi
+}

@@ -1,0 +1,16 @@
+#
+# get designated field from a colon separated string
+#
+
+source ~/lib/sh/include
+require freturn
+
+function \
+get_colonsep_field ()
+{
+	local +i string=$1
+	local -i offset=$2
+	local -a fields=($(IFS=:; echo $string))
+
+	freturn ${fields[offset]}
+}

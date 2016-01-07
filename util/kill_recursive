@@ -1,0 +1,32 @@
+#
+
+kill_recursive ()
+{
+	local -i i
+	local -a children
+
+	local -i pid=$1
+	local +i sig=$2 # must handle both names and numbers
+
+	# Although there does not seem to be any
+	# reason for it, the script actually
+	# *exits* here once `ps' is run with no
+	# pids to return (i.e. the most nested
+	# level of recursion) if the $(echo ...)
+	# does not exist!!!!  This has got to be a
+	# bug on *someone*s part but I have no time
+	# to chase this.
+	#
+	# NOTE: this worked fine before!!! Unable
+	# to figure out what has changed.  In fact
+	# the script itself was working, then it
+	# wasn't, *without* any changes.  This is
+	# extremely bizarre!
+	#
+	children=($(echo $(ps --ppid $pid -o pid=)))
+	for ((i = 0; i < ${#children[@]}; i++)); do
+		kill_recursive ${children[i]} $sig
+	done
+
+	kill -$sig $pid
+}

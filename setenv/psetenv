@@ -1,0 +1,15 @@
+
+#
+# setenv with export, using colon as field separators
+# (intended for use to construct PATHs)
+# see 'setenv' for more info
+#
+
+psetenv ()
+{
+	local v=$1
+	local IFS=:
+	shift
+	eval $v='"$*"'
+	export $v
+}

@@ -1,0 +1,15 @@
+#
+
+include ~/lib/sh/include
+require freturn
+
+stack_pop ()
+{
+	local stackname=$1
+	eval local nents=\${#${stackname}\[@\]}
+
+	((nents > 0)) || return 1
+
+	eval freturn "\${${stackname}[--nents]}"
+	eval unset \${${stackname}\[nents\]}
+}

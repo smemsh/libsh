@@ -1,0 +1,13 @@
+#
+# setenv with export
+# see setenv for more info
+#
+
+esetenv ()
+{
+	local v=$1
+	local IFS=
+	shift
+	eval $v='"$*"'
+	export $v
+}

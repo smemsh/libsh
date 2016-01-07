@@ -1,0 +1,23 @@
+#
+
+require kill_recursive
+
+signal_ptrees_byname ()
+{
+	local i
+
+	local pname=$1
+	local signal=$2
+
+	local -a rootpids=($(pgrep -x $pname -u $(id -u)))
+
+	((${#rootpids[@]})) || {
+		echo "a $pname instance does not seem to be running"
+		exit 1
+	}
+
+	for ((i = 0; i < ${#rootpids[@]}; i++)) {
+		rootpid=${rootpids[i]}
+		kill_recursive $rootpid $signal
+	}
+}

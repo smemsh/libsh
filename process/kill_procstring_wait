@@ -1,0 +1,15 @@
+#
+
+require kill_pid_wait
+
+kill_procstring_wait ()
+{
+    local -a pid=($(pgrep -f "$1"))
+    local -i seconds=${2:-7}
+
+    ((${#pid[@]} == 0)) && return 0 # not running
+    ((${#pid[@]} > 1)) && bomb "more than one procstring"
+
+    kill_pid_wait $pid $seconds || bomb "pid $pid refuses to die"
+}
+

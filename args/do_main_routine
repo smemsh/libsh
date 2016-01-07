@@ -1,0 +1,18 @@
+#
+
+require bomb
+
+do_main_routine ()
+{
+	local name=$1 prefix=$2 suffix=$3
+	local main
+
+	name=${name#$prefix}
+	name=${name%$suffix}
+	shift 3
+
+	main=$(compgen -A function $name) ||
+		bomb "main routine not present"
+
+	$main $@
+}

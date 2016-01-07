@@ -1,0 +1,6 @@
+#
+
+size_in_bytes ()
+{
+	stat --dereference --format %s "$1"
+}

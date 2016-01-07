@@ -1,0 +1,16 @@
+# sleep specified number of milli or micro -seconds
+#
+# this is somewhat silly since the calls will be dwarfed by system call time to
+# invoke bc(1) but we do not have shell arithmetic available in decimal, and it
+# will work fine for larger numbers; redhat had a usleep but debian does not
+#
+
+msleep ()
+{
+	sleep $(bc <<< "0.001 * $1")
+}
+
+usleep ()
+{
+	sleep $(bc <<< "0.000001 * $1")
+}

@@ -1,0 +1,24 @@
+#
+# creates a new taskwarrior task with only uuid and description set
+#
+# returns uuid to the caller as a string on stdout
+# TODO maybe we should have the uuid passed in instead
+# TODO bomb() in a subshell blows up of course
+#
+##############################################################################
+
+require bomb
+
+tw_new_stub ()
+{
+	local uuid
+
+	[[ `type -p uuidgen` ]] ||
+		bomb "requires uuidgen(1) shell utility; aborting"
+
+	uuid=`uuidgen`
+	task import <(printf '[{"uuid":"%s", "description":"-"}]' $uuid) ||
+		bomb "failed stub creation"
+
+	printf $uuid
+}

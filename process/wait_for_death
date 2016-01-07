@@ -1,0 +1,25 @@
+#
+
+kill_pid_wait ()
+{
+    local -i pid=$1 i
+    local -i waitfor=${2:-7}
+
+    if ((pid)); then kill $pid; else return 1; fi
+
+    wait_for_death $pid $waitfor
+
+    return $?
+}
+
+wait_for_death ()
+{
+    local -i pid=$1 i
+    local -i waitfor=${2:-7}
+
+    for ((i = 0; i < waitfor; i++))
+    do if ps -p $pid &>/dev/null; then sleep 1; else return 0; fi
+    done
+
+    return 1
+}

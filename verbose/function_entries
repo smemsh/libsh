@@ -1,0 +1,11 @@
+#
+
+leave ()
+{
+	echo "done"
+}
+
+enter ()
+{
+	echo -n "${FUNCNAME[1]}: "
+}

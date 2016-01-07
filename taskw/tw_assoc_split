@@ -1,0 +1,26 @@
+#
+# splits an ocassoc string into taskwarrior parlance, eg
+# "this/foo/bar/baz" -> "project:this.foo.bar label:baz"
+#
+##############################################################################
+
+require assoc_split_project
+require assoc_label
+require bomb
+
+tw_assoc_split ()
+{
+	local projs=()
+	local IFS; unset IFS
+
+	(($# == 1)) ||
+		bomb "requires single argument only"
+
+	projs=($(assoc_split_project $1))
+
+	IFS=.
+	printf "project:%s label:%s" \
+		"${projs[*]}" \
+		`assoc_label $1` \
+	;
+}

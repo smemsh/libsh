@@ -1,0 +1,239 @@
+#
+# libsh
+#   source file inclusion subsystem (i.e. "shell library")
+#
+# desc:
+#   selectively import individual functions or groups of related
+#   functions into the shell environment, without having to track
+#   dependencies, source file location, or source order
+#
+# funcs:
+#   'require': import single function
+#   'include': import group of related functions
+#
+# usage:
+#   - source this file to bring in 'require' and 'include' functions
+#   - place all library functions in subdirs of this file's location
+#   - use one file per function, (add symlinks for each func name if more)
+#   - each source file name corresponds to a 'require' (single file sourced)
+#   - each subdirectory corresponds to an 'include' (all in dir are sourced)
+#   - use 'include' and 'require' within source files for interdependencies
+#
+# status:
+#   - used for many of author's personal projects
+#   - code in here is old; bash-1.14.7 was released version when started
+#   - some code might be broken or suboptimal, but much is in active use
+#   - not all code generalized; some doesn't belong here; working to split out
+#   - no other known users at this time (please notify author)
+#
+# scott@smemsh.net
+# http://smemsh.net/src/libsh/
+# http://spdx.org/licenses/GPL-2.0
+#
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Rationale
+#
+# - The interface requires sourcing only one stub file (which can be
+#   located anywhere), to install the 'include' and 'require'
+#   functions in the shell's execution context.  This then makes
+#   everything else available selectively, by the use of these keywords
+#   in a script.
+#
+# - Obviates need to impose an initialization order on the sourcing of
+#   shell startup files.  The order will be self-imposed as
+#   dependencies are automatically resolved.
+#
+# - Removes the problem of deciding which functions from a library are
+#   worth exporting to child environments.  Instead we can simply
+#   export none of them; all inclusion is upon request only:
+#   preconfigured groups of commands can be requested with `include'
+#   and single commands can be requested with `require'
+#
+# - Protects against redundant inclusion.  Early termination of
+#   include procedures if already defined.  This can be implemented
+#   wholly: per include; or partially: per function (i.e. requires).
+#
+# - Potential for automatic generation and maintenance.  The list of
+#   functions provided by a source file can be determined from bash
+#   itself.
+#
+# - Allows standalone executable scripts to participate in the system
+#   as well as forked children that have sourced login/profile
+#   scripts.  Sometimes the use of standalone scripts to provide
+#   simple commands is preferable to the use of functions.
+#
+# - Code reuse and all the usual good reasons for having libraries.
+#
+##############################################################################
+
+abort () { echo "include: ERROR: $2, aborting..." >&2; exit $1; }
+
+# we cannot be called from within a subshell, to ensure that
+# e.g. 'exit' works here... which we do on include errors
+#
+(($BASHPID != $$)) &&
+	abort 1 "used from within subshell"
+
+# so we can be used in different places without hardcoding a
+# base directory, we base everything relative to the
+# location of this file as first included from the toplevel
+# script
+#
+LIBSH_BASEDIR=${LIBSH_BASEDIR:-${BASH_SOURCE%*/*}}
+
+# we use some shell features which are probably not
+# available on some older systems
+# todo: this should ideally work on 1.14.7 and up
+# todo: right now it probably requires bash4.2!!
+# todo: each function should have a version test
+# todo: alternate implementations for older versions
+#
+((BASH_VERSINFO[0] < 4)) && abort 3 "at least bash4 required"
+
+##############################################################################
+
+# use this function to include individual source files by
+# name, in any subdirectory of the one this script is in
+#
+require ()
+{
+	local sourcefile cachevar
+	local -a matched
+
+	sourcefile=$1
+
+	(($# < 1)) &&
+		abort 5 "at least one arg required"
+	[[ $sourcefile =~ [^[:alnum:]_] ]] &&
+		abort 10 "include sourcefile has bogus filename chars"
+
+	# use an environment variable to determine if we
+	# already sourced it and don't source more than once,
+	# so sourced files can themselves 'require' and
+	# 'include' each other without unnecessarily
+	# redefining the functions and causing loops
+	#
+	cachevar=LIBSH_SOURCES_$sourcefile
+	[[ $cachevar ]] &&
+		return
+
+	# rely on shell globbing to find the source file for
+	# us, but don't require the user to have any
+	# particular glob settings (yes, this is needed)
+	#
+	matched=($(compgen -G "$LIBSH_BASEDIR/*/$sourcefile"))
+
+	# we actually have a flat namespace for the moment,
+	# despite the fact that we can group into separate
+	# directories; goal is for 'include' and 'require' to be
+	# as lightweight as possible
+	#
+	((${#matched[@]} == 1)) ||
+		abort 20 "only one match allowed"
+
+	# skip stuff like no/ but we should be using ** later so
+	# this will have to be modified
+	#
+	test -d $matched &&
+		return
+
+	# should not happen
+	#
+	test -f $matched ||
+		abort 22 "impossible condition"
+
+	# at this point, all our sanity checks have concluded
+	# successfully, so we go ahead and read the requested
+	# sourcefile
+	#
+	if source $matched
+	then
+		# without "eval" this breaks! even using ': var=""' !
+		eval LIBSH_SOURCES_$sourcefile= # just 'declare' breaks!
+	else
+		abort 25 "source of '$matched' failed"
+	fi
+
+	# recurse for any remaining arguments, to support
+	# mutli-arg "require" lines, etc
+	#
+	shift
+
+	if (($#))
+	then
+		if ! require $@
+		then
+			abort $? "require failed after $matched, $# args left"
+		fi
+	else
+		true
+		return
+	fi
+}
+
+# source all files in a subdirectory of the one this script
+# is in when sourced
+#
+include ()
+{
+	local -i i
+	local +i sourcedir
+	local +i match
+	local -a matched
+
+	sourcedir=$LIBSH_BASEDIR/$1
+
+	(($# < 1)) &&
+		abort 55 "multiple source dirs matched"
+
+	[[ $sourcedir =~ [^[:alnum:]_/-] ]] &&
+		abort 60 "srcpath bad char"
+
+	# remember this is ok condition, we don't want error
+	# output here and don't want to end up calling exit()
+	#
+	# todo: why is it ok to happen? echo with debug here,
+	# what is getting inserted that keeps failing?
+	#
+	test -d $sourcedir || return 65
+
+	matched=($(compgen -G "$sourcedir/*"))
+	for ((i = 0; i < ${#matched[@]}; i++)); do
+		match=${matched[i]}
+		match=${match##*/}
+		require $match || abort $? "bad match: '$match'"
+	done
+}
+
+##############################################################################
+
+# everything available is brought into the environment
+# (useful for an interactive shell initialization profile)
+#
+allinclude ()
+{
+	local -i i
+	local +i match
+	local -a matched
+
+	(($# == 0)) || return 100
+
+	matched=($LIBSH_BASEDIR/*)
+	for ((i = 0; i < ${#matched[@]}; i++))
+	do
+		match=${matched[i]}
+		test -d $match || continue
+		include ${match##*/} || return $?
+	done
+}
+
+# let folks re-source stuff if they change their source
+# files and want to really reread, e.g. from their
+# interactive shell
+#
+noinclude ()
+{
+	for var in $(compgen -A variable LIBSH_)
+	do unset $var
+	done
+}

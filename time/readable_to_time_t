@@ -1,0 +1,81 @@
+#
+# Takes a given human readable time string representation
+# and converts it into a number of seconds e.g. time_t
+#
+# Input format is XX:YYz where `XX' is a number of `z'
+# units and `YY' is a number of the next lowest time units.
+# note that XX or YY can be any number of digits.  Also note
+# that both negative and positive values are supported for
+# XX (which negates the entire number) and the sign will be
+# returned by this function.
+#
+
+source ~/lib/sh/include
+
+require fsetenv
+require freturn
+
+readable_to_time_t ()
+{
+	local +i strtime=$1
+	local +i divset
+	local +i unit
+	local +i lastunit
+	local +i threshold1
+
+	local -i time
+	local -i divisor
+	local -i threshold
+	local -i thisdivisor
+	local -i dividend
+	local -i remainder
+
+	local +i pattern
+	local +i majorval
+	local +i minorval
+	local +i unit
+	local -i value
+
+	if [[ ${strtime:0:1} == '-' ]]; then
+		local -i negative
+		strtime=${strtime:1}
+	elif [[ ${strtime:0:1} == '+' ]]; then
+		unset negative
+		strtime=${strtime:1}
+	fi
+
+	pattern='^'
+	pattern+='([[:digit:]]+):'
+	pattern+='([[:digit:]]+)'
+	pattern+='([[:alpha:]])'
+	pattern+='$'
+	if ! [[ $strtime =~ $pattern ]]; then
+		false
+		freturn ""
+	fi
+
+	majorval=${BASH_REMATCH[1]}
+	minorval=${BASH_REMATCH[2]}
+
+	# strip leading zeros, otherwise bash thinks we're
+	# trying to give it an octal
+	#
+	majorval=${majorval#0*}
+	minorval=${minorval#0*}
+
+	unit=${BASH_REMATCH[3]}
+
+	case $unit in
+	(s) value=$((majorval + minorval));;
+	(m) value=$((majorval*60 + minorval));;
+	(h) value=$((majorval*60*60 + minorval*60));;
+	(d) value=$((majorval*60*60*24 + minorval*60*60));;
+	(M) value=$((majorval*60*60*24*30 + minorval*60*60*24));;
+	(*) false; freturn ""; false; return; ;;
+	esac
+
+	[[ ${negative+unset} ]] && value=-$value
+
+	true
+	freturn $value
+}

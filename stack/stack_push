@@ -1,0 +1,13 @@
+#
+
+source ~/lib/sh/include
+require array_exists
+
+stack_push ()
+{
+	local stackname=$1
+	local topush="$2"
+
+	array_exists $stackname || { echo "array must exist"; return 1; }
+	eval $stackname+=\(\$topush\)
+}

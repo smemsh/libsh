@@ -1,0 +1,7 @@
+#
+# stub to call by unimplemented scripts, so we can be
+# reminded about them
+#
+
+require warn
+unfinished () { warn "aborting to caller"; return 0; }

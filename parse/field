@@ -1,0 +1,117 @@
+#
+# Split field()s s with optional in and out delimiters
+#
+# 	usage: field r ({in,out}delim=whitespace, rangeset=r)
+# 	usage: field id r (indelim=id, outdelim=whitespace, rangeset=r)
+# 	usage: field id od r (indelim=id, outdelim=od, rangeset=r)
+#
+# XXX TODO specifying od but not id?
+#
+# Takes a range specifier and returns all the field numbers
+# contained in the specification.
+#
+# Syntax: one of these three forms:
+#
+# 	indelim outdelim range
+# 	indelim range
+# 	range
+#
+# Where unspecified, a delim defaults to a space or tab.
+# This is currently the only way to use more than one
+# character as a delimiter, since the code only handles
+# specifying single character delimiters right now.
+#
+# Range specifier is a comma separated list of ranges, where
+# ranges are either single numbers or first-last contiguous
+# sequences, so for example:
+#
+# 	1-3,4,8,7-10
+#
+# would return "1 2 3 4 8 7 8 9 10" to the caller
+# NOTE: incomplete range ends will default to last entry
+#
+# XXX TODO BUG this function will eat whitespace, i.e.
+# "dothis '1 2'" will be treated the same as "dothis '1   2'"
+#
+# XXX TODO does it eat backslashes? Much like my shell history
+# stores "\symbol" as "symbol" but will store "'symbol'" as
+# "'symbol'"
+#
+# XXX TODO: 10x faster!!!
+#
+#	awk '{
+#		for (i = start; i <= end; i++)
+#			printf("%s ", $i);
+#		printf("\n");
+#	}'
+#
+# XXX TODO allow multiple delimiters
+# XXX TODO allow regexes for delimiters
+#
+
+require range_to_list
+
+field ()
+{
+	local \
+		rangearg \
+		indelim \
+		outdelim
+
+	local shellfalse=1
+
+	case $# in
+	(3) indelim="$1" outdelim="$2" rangearg="$3" ;;
+	(2) indelim="$1" outdelim=' '  rangearg="$2" ;;
+	(1) indelim=' '  outdelim=' '  rangearg="$1" ;;
+	(*) return $shellfalse;;
+	esac
+
+	# we only handle single-character delimiters right now
+	#
+	((${#indelim} == 1)) || return $shellfalse;
+	((${#outdelim} == 1)) || return $shellfalse;
+
+	# ugly hack: we need to break on whitespace, not
+	# just spaces, i.e. to include tabs (and newlines
+	# too, but not yet), so by unsetting indelim, it
+	# defaults later when we assign IFS
+	#
+	(($# == 1)) && unset indelim
+
+	# expands the special-syntax list of ranges into a
+	# single list of numbers occupying that range
+	#
+	# - split up the input into fields as delimited by
+	#   the given delimiter, or just sameline whitespace
+	#   if none was given
+	#
+	# - only echo the particular fields that were
+	#   requested with the range argument
+	#
+	# - separate output fields with the specified output
+	#   delimiter, which defaults to a space
+	#
+	(
+		local -i fieldnum iterations
+		local -a fields
+		local -a outarray
+
+		IFS="${indelim:-$' \t'}"
+		while read -a line
+		do (
+			IFS=' '
+			outarray=()
+			fields=($(range_to_list $rangearg ${#line[@]}))
+			iterations=${#fields[@]}
+
+			for ((i = 0; i < iterations; i++))
+			do
+				fieldnum=$((${fields[i]} - 1))
+				outarray+=("${line[fieldnum]}")
+			done
+
+			(IFS="$outdelim"; echo "${outarray[*]}")
+		); done
+	)
+}

@@ -1,0 +1,13 @@
+# run this at the end of the critical section
+# give it the lockfile name, and the `get_lock()' return value
+#
+put_lock ()
+{
+	local +i unlocked=$1
+	local +i locked=$2
+
+	mv $locked $unlocked && return
+
+	echo "failed to put the lock"
+	return 1
+}

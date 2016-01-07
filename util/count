@@ -1,0 +1,43 @@
+#
+# line count
+#
+#   - no args: use stdin
+#   - one arg: use file (on stdin)
+#   - multi args: for each, print name, and do as one arg case
+#
+require printf_isatty
+
+# todo: this will have bad performance with large numbers of
+# files given on the command line, probably want to use
+# readarray with a quantum/callback
+#
+
+do_count ()
+{
+	count_one_file_stdin ()
+	{
+		local -a lines=()
+		readarray lines
+		printf_isatty ${#lines[@]}
+	}
+
+	per_arg_recurse_with_name ()
+	{
+		while (($# > 1)); do
+			printf "%s: %lu\n" $1 $(do_count $1)
+			shift
+		done
+	}
+
+	if (($# == 0)); then :
+	elif (($# == 1)); then exec < $1
+	else per_arg_recurse_with_name $@
+	fi
+
+	count_one_file_stdin
+}
+
+count ()
+{
+	do_count $@
+}

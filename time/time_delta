@@ -1,0 +1,43 @@
+#
+# returns the absolute value of the difference between two times
+#
+# assumes the times are on the same day
+# expects times in 24-hour format either HH:MM or H:MM
+# output is in this same format
+#
+
+source ~/lib/sh/include
+require time_t_to_readable
+
+time_delta ()
+{
+	local -a time
+	local +i i
+	local +i delta
+	local +i pattern
+
+	(($# == 2)) || {
+		echo "$FUNCNAME: needs two times in HH:MM or H:MM format"
+		return 1
+	}
+
+	pattern='([[:digit:]]{1,2}):([[:digit:]]{2})'
+	for ((i = 1; i <= 2; i++)); do
+		time=$1
+		[[ $time =~ $pattern ]]
+		time[i]=$((${BASH_REMATCH[1]#0} * 60
+			   + ${BASH_REMATCH[2]#0})) # minutes
+		shift
+	done
+
+	if ((time[1] > time[2])); then
+		delta=$((time[1] - time[2]))
+	else
+		delta=$((time[2] - time[1]))
+	fi
+
+	((delta *= 60)) # make seconds
+
+	fsetenv delta time_t_to_readable $delta
+	freturn $delta
+}

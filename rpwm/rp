@@ -1,0 +1,3 @@
+#
+
+rp () { DISPLAY=:0 ratpoison -c "$*"; }

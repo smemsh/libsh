@@ -1,0 +1,11 @@
+#
+# addarr arrayname val[end+1] val[end+2] val[end+3] ...
+#
+
+addarr ()
+{
+	local v=$1
+	shift
+
+	eval $v+=\(\"\$@\"\)
+}

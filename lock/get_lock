@@ -1,0 +1,34 @@
+#
+# protect from concurrent runs
+# run this at the beginning of the critical section
+#
+
+source ~/lib/sh/include
+require freturn
+
+# pass it the name of the lockfile
+#
+# freturns the temporary lockedfile name
+# (save this value for `put_lock()')
+#
+get_lock ()
+{
+	local +i unlocked=$1
+	local +i locked=`mktemp /tmp/$$.XXXXXXXXXXXXXXXX`
+
+	# rename(2) should be atomic, so this should prevent
+	# a race with any other instances as long as we move
+	# it back when we're done doing work
+	#
+	# XXX TODO default to 3000 busyloop iterations:
+	# change to usleep? make user-settable?
+	#
+	for ((i = 0; i < 3000; i++)); do
+		mv $unlocked $locked &>/dev/null && {
+			freturn $locked
+			return
+		}
+	done
+	
+	return 1
+}

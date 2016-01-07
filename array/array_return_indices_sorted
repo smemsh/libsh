@@ -1,0 +1,75 @@
+#
+# Returns a sequence of indices that correspond to a sorted
+# ordering of the input array elements.
+#
+# Builds an array to shadow the given one whose elements
+# correspond to its index numbers.  Using the insertion sort
+# algorithm, reorder the shadow array elements to correspond
+# to the numeric sort order of the original array.
+#
+# Return the reordered shadow elements for the caller to use
+# as sequential indices to get a sorted list copy.
+#
+# INSERTION SORT:
+#
+# For each element (starting with the second), stow the
+# value and its shadow.  Starting with the prior element and
+# continuing backwards through previous elements (which have
+# all been sorted already), see if our value is higher, from
+# a lexicographical standpoint.  If so, we have found our
+# rightful insertion position.  Until then, keep shifting
+# compared values to the right and the index to be compared
+# next to the left.  Once we've reached the index where
+# the comparison indicates we should insert, do so.
+#
+# Note: as of r270 we no longer use lexicographical
+# comparison; instead, we use an actual numeric comparison,
+# so the arguments passed to us must be numbers; their local
+# copies are in fact declared with the integer property, so
+# the script will not work properly if strings are passed or
+# even numbers prepadded with zeros (such numbers will be
+# parsed by the shell as octals).  The intended use of this
+# function is to get a list of time_t types for sorting.
+# XXX TODO use a callback function to compare, moving this
+# responsibility out to the caller and allowing us to do
+# either kind of sort, or other arbitrary sorts
+#
+# Note: the first of these shifts clobbers the origin index
+# of the stowed value, which is fine because we're inserting
+# it again somewhere else (or possibly into the same
+# position) and have stowed away the value to use for said
+# copy.
+#
+
+source ~/lib/sh/include
+require freturn
+
+array_return_indices_sorted ()
+{
+	local -i val sval cmp i j
+	local -a presort indices
+
+	presort=($@)
+
+	for ((i = 0; i < $#; i++)); do
+		indices+=($i)
+	done
+
+	for ((i = 1; i < $#; i++))
+	do
+		val=${presort[i]}
+		sval=${indices[i]}
+
+		for ((j = i-1; j >= 0; j--))
+		do
+			((val >= presort[j])) &&
+				break
+			presort[j+1]=${presort[j]}
+			indices[j+1]=${indices[j]}
+		done
+		presort[j+1]=$val
+		indices[j+1]=$sval
+	done
+
+	freturn ${indices[@]}
+}

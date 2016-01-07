@@ -1,0 +1,17 @@
+#
+# takes an ocassoc string ie "this/foo/bar/baz" and
+# splits it into separate words ie "this foo bar baz"
+#
+##############################################################################
+
+assoc_split ()
+{
+	local arr=()
+	local IFS; unset IFS
+
+	(($# == 1)) ||
+		bomb "one arg only"
+
+	IFS=/ read -a arr <<< "$1"
+	echo -n "${arr[@]}"
+}

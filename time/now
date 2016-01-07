@@ -1,0 +1,5 @@
+#
+
+require printf_isatty
+
+now () { printf_isatty $(date +%Y%m%d%H%M%S); }

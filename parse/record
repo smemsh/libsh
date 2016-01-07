@@ -1,0 +1,47 @@
+#
+# SKIP THIS FILE NOTHING HERE MOVE ALONG
+#
+# as of now 20090125173436 this whole file is a comment; we
+# are not using 'record' at the moment and/or implementation
+# is unfinished
+
+# incomplete and may be unnecessary:
+# ... | field | field | field
+#
+# or maybe implement | split delim | field
+#
+#function \
+#record ()
+#{
+#	local -a line
+#
+#	# if two args, make arg1 the record delimiter,
+#	# otherwise leave it empty
+#	local +i delim=${2:+$1}
+#	((${#delim} > 1)) && bomb "string delimiters not yet implemented"
+#
+#	# if 2 args, make arg2 the record specification,
+#	# otherwise arg1; break down the record
+#	# specification into a list of records to select
+#	#
+#	local +i range=${2:-$1}
+#	local -a records=(`expand_range $range`)
+#	local -i record=0
+#	local -i i=0
+#
+#	#
+#	# We do this bit of trickery instead of just
+#	# "while read...do" due to the fact that `read'
+#	# returns false on the last record if it does not
+#	# have a trailing delimiter, so we miss printing the
+#	# last record if we don't do so after a false but
+#	# before breaking out of the loop.  See msgids
+#	# <47C460C8.10300@web.de> and
+#	# <47C47FBA.4000407@case.edu> in saved mail for full
+#	# explanation.
+#	#
+#	while true; do
+#		read ${delim:+"-d $delim"} || { echo $REPLY; break; }
+#		echo $REPLY
+#	done
+#}

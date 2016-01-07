@@ -1,0 +1,73 @@
+#
+# Takes a given time_t string and returns a human readable
+# time representation of the interval length
+#
+
+source ~/lib/sh/include
+
+require fsetenv
+require freturn
+
+# this takes actually just a number a of seconds, not really a
+# time_t, although they both measure seconds.  but this one
+# just takes a relative number of seconds, and prints a human
+# readable summary of how much time that is
+#
+time_t_to_readable ()
+{
+	local +i strtime=$1
+	local +i divset
+	local +i unit
+	local +i lastunit
+	local +i pattern
+
+	local -i time
+	local -i divisor
+	local -i lastdivisor
+	local -i threshold
+	local -i dividend
+	local -i remainder
+
+	if [[ ${strtime:0:1} == '-' ]]; then
+		local -i negative
+		strtime=${strtime:1}
+	elif [[ ${strtime:0:1} == '+' ]]; then
+		unset negative
+		strtime=${strtime:1}
+	fi
+
+	pattern='^[0]*(.*)'
+	[[ $strtime =~ $pattern ]]
+	time=${BASH_REMATCH[1]}
+
+	# otherwise we end up getting divisions by zero if we break early
+	divisor=1
+	lastdivisor=1
+
+	# unit:threshold,divisor
+	for divset in s:99,1 m:99,60 h:72,60 d:90,24 M:36,30; do
+
+		unit=${divset%:*}
+
+		threshold=${divset#?:} # strip the unit
+		threshold=${threshold%,*} # strip the divisor
+
+		divisor=$((divisor * ${divset#*,}))
+		dividend=$((time / divisor))
+		remainder=$((time % divisor))
+
+		((dividend < threshold)) && break
+		lastdivisor=$divisor
+		lastunit=$unit
+	done
+
+	left=$((remainder / lastdivisor))
+	#left=${left%0*}
+	[[ ${negative+unset} ]] && let dividend=-dividend
+	printf							\
+		-v printline					\
+		"%2d:%02d%c%c" $dividend $left $unit		\
+		#${lastunit:-$unit}
+
+	freturn "$printline"
+}

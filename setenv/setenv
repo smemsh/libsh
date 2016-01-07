@@ -1,0 +1,12 @@
+#
+# setenv var value: same as var=value but allow whitespace
+# setenv var val1 val2 val3: same as var=val1val2val3 (concatenate)
+#
+
+setenv ()
+{
+	local v=$1
+	local IFS=
+	shift
+	eval $v='"$*"'
+}

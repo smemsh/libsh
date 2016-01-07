@@ -1,0 +1,6 @@
+#
+
+array_exists ()
+{
+	compgen -A arrayvar $1
+}

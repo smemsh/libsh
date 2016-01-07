@@ -1,0 +1,12 @@
+#
+# arrayname[index]=val
+#
+
+arridx ()
+{
+	local v=$1
+	local i=$2
+	local d=$3
+
+	eval $v\[$i\]=\$d
+}

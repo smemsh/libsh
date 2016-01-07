@@ -1,0 +1,33 @@
+#
+# input: a number of bytes
+# output: the same number in human-readable format
+#
+
+bytes_to_readable ()
+{
+	local -i bytes=${1:-0}
+
+	local -i shiftby \
+		 divisor
+
+	# accomodate decimal
+	local +i result
+
+	local -a shifts=(	10 20 30 40 50	)
+	local -a suffixes=(	''  K  M  G  T	)
+
+	for ((i = 0; i < ${#shifts[@]}; i++)) {
+		shiftby=${shifts[i]}
+		((bytes >> shiftby)) || break
+	}
+	let shiftby-=10
+	suffix=${suffixes[i]}
+
+	divisor=$((1 << shiftby))
+	result=$(bc <<< "$bytes / $divisor")
+
+	#
+
+	echo ${result/#./0.}${suffix}
+}
+# vim:syn=sh:ft=sh

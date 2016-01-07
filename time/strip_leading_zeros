@@ -1,0 +1,18 @@
+#
+
+source ~/lib/sh/include
+require freturn
+
+strip_leading_zeros ()
+{
+	local +i arg=$1
+	local -i stripped
+	local +i pattern
+
+	# strip leading zeros so we can use integer attribute
+	pattern='^(0+)(.*)$'
+	[[ $arg =~ $pattern ]]
+	stripped=${BASH_REMATCH[2]:-$arg}
+
+	freturn $stripped
+}

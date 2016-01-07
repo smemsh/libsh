@@ -1,0 +1,51 @@
+#
+# returns difference between two input $HISTTIMEFORMAT times
+# can return:
+#
+#	mtime (== days, suitable for "find -mtime")
+#	mmin (== minutes, suitable for "find -mmin")
+#	time_t (== seconds)
+#
+# return value depends on the function name used to invoke
+#
+
+source ~/lib/sh/include
+require fsetenv
+require freturn
+require timefmt_to_time_t
+
+timefmt_delta_mmin ()	{ local -i i;
+			  fsetenv i timefmt_delta_time_t $1 $2;
+			  freturn $((i / 60)); }
+
+timefmt_delta_mtime ()	{ local -i i;
+			  fsetenv i timefmt_delta_time_t $1 $2;
+			  freturn $((i / 60 / 60 / 24)); }
+
+timefmt_delta_time_t ()
+{
+	local -i timefmt1=$1
+	local -i timefmt2=$2
+	local -i timet1
+	local -i timet2
+	local -i delta
+
+	(($# == 2)) || {
+		echo "$FUNCNAME: needs two dates in \$HISTTIMEFORMAT format"
+		return 1
+	}
+
+	fsetenv timet1 timefmt_to_time_t $timefmt1 ||
+		{ echo "wrong1"; return 1; }
+
+	fsetenv timet2 timefmt_to_time_t $timefmt2 ||
+		{ echo "wrong2"; return 1; }
+
+	if ((timet1 > timet2)); then
+		delta=$((timet1 - timet2))
+	else
+		delta=$((timet2 - timet1))
+	fi
+
+	freturn $delta
+}

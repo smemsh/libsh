@@ -1,0 +1,12 @@
+#
+
+require fsetenv
+
+fecho ()
+{
+	local tmp
+
+	fsetenv tmp "$@"
+
+	echo "$tmp"
+}

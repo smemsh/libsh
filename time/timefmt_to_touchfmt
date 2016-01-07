@@ -1,0 +1,10 @@
+#
+# the `touch' fmt is just the same as `timefmt' but a period
+# separates the seconds value from the rest of the time
+
+require freturn
+
+timefmt_to_touchfmt ()
+{
+	freturn ${1:0:12}.${1:12:2}
+}

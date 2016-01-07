@@ -1,0 +1,29 @@
+#
+# input: %Y%m%d%H%M%S
+# output: %m/%d@%H:%M
+#
+
+source ~/lib/sh/include
+require freturn
+
+make_human_readable_absolute_datestr ()
+{
+	local datestr=$1
+	local year=${datestr:0:4}
+	local label
+	local off
+
+	# these could have initial zeros so we have to force
+	# them into strings on assignment
+	#
+	local period=(month day hour minute second)
+	eval local +i ${period[@]}
+
+	for label in ${period[@]}; do
+		eval $label=${datestr:$((i++)):2}; done
+
+	for ((off = 4, i = 0; i < ${#period[@]}; i++, off += 2)); do
+		eval ${period[i]}=${datestr:$off:2}; done
+
+	freturn $month/$day@$hour:$minute
+}

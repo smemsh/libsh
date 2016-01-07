@@ -1,0 +1,21 @@
+#
+# takes an ocassoc string and returns the project components, as
+# separate words
+#
+##############################################################################
+
+require assoc_split
+
+assoc_split_project ()
+{
+	local assocs=()
+	local IFS; unset IFS
+
+	(($# == 1)) ||
+		bomb "one arg only"
+
+	assocs=($(assoc_split "$@"))
+	unset "assocs[$((${#assocs[@]} - 1))]"
+
+	echo -n "${assocs[@]}"
+}

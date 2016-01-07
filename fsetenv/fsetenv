@@ -1,0 +1,115 @@
+#
+# Execute shell functions and get return values without
+# having to use subshells.
+#
+# Since shell functions are only capable of returning a
+# single byte (i.e., the argument to "return" or the exit
+# status of the last command), the normal way to simulate a
+# return value is by echoing a string in the function,
+# running it in a subshell from the caller, and capturing
+# the subshell's output, like so:
+#
+#     $ function testfunc () { echo retval; }
+#     $ testvar=`testfunc`
+#     $ echo $testvar
+#    retval
+#
+# Besides the fact that this lacks variable typing, it also
+# causes the problem that every single function call that
+# captures a return value now has to implement a fork/exec
+# pair.  This results in hideous operating system overhead
+# and encourages non-procedural programming as a result.
+# Some large scripts I have been writing are taking several
+# seconds to run, dominated 95% by this overhead as
+# determined by system call profiling.
+#
+# To mitigate this somewhat I am implementing a new function
+# calling convention for these scripts that uses `fsetenv()'
+# to invoke a given function, which passes the return values
+# back to a helper routine via an array variable `$fvars[]',
+# the elements of which are used to stack variable values by
+# nesting depth.  Once control returns to a given
+# `fsetenv()' invocation, it sets the variable it was given
+# to the value set via `freturn()' within the called
+# function.  So the new calling convention for the example
+# above would be:
+#
+#     $ function testfunc () { freturn retval; }
+#     $ fsetenv testvar testfunc
+#     $ echo $testvar
+#    retval
+# 
+# This also ends up having the right semantics to work
+# correctly with local variables in the function calling
+# `fsetenv()' because in shell parlance local variables have
+# a scope which includes all descendent children but not
+# parents.
+#
+# Since the script call tree has only one thread of
+# execution pushing and popping variables, we can get away
+# with using a single global stack and a single index
+# `$fdepth' which we increment/decrement at each nesting
+# level.
+#
+
+unset fdepth
+declare -i fdepth
+
+unset fvars
+declare -a fvars
+
+# push
+freturn ()
+{
+	# We want an `fsetenv()'/`freturn()'/`return'
+	# sequence to correctly pass the exit code from the
+	# original `fsetenv()' out through the `return'.  In
+	# order to do this we must preserve the exit code
+	# through the call of `freturn()'.  Note that this
+	# obviously doesn't work if we aren't called after
+	# the `fsetenv()' or some arrangements have been
+	# made to invoke us with the correct code resulting
+	# from the evaluation of `$?'
+	#
+	local -i lastret=$?
+	local +i retvals="$@"
+
+	fvars[--fdepth]="$retvals" &>/dev/null
+	(($?)) && {
+		echo $FUNCNAME: error in assignment
+		fdepth=0
+		return 1
+	}
+
+	return $lastret
+}
+
+# pop
+fsetenv ()
+{
+	local +i variable=$1
+	local +i function=$2
+	local -i rval
+
+	shift 2
+
+	let ++fdepth
+	$function $@
+	rval=$?
+
+	eval $variable=\${fvars\[fdepth\]}
+
+	return $rval
+}
+
+# test return value without setting any variables we need
+# this because we can't just invoke a function that does
+# freturn without its corresponding fsetenv, otherwise the
+# fdepth stack gets screwed up, so we have to wrap tests of
+# the return value to make sure the counter is updated
+# appropriately
+fretval ()
+{
+	let ++fdepth
+	$function $@
+}

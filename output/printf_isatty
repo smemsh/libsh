@@ -1,0 +1,4 @@
+#
+# tests if stdout is a tty (NOT stdin)
+
+printf_isatty () { printf "$@"; test -t 1 && echo; }

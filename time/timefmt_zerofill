@@ -1,0 +1,26 @@
+#
+# postfix zero padding to the argument to make it the right
+# size for one of our timefmt vars
+#
+require printf_isatty
+
+pad_with_zeros ()
+{
+	local arg=$1
+	while ((${#arg} < 14)); do arg+="0"; done
+	printf_isatty %u $arg
+}
+
+timefmt_zerofill ()
+{
+	local results=()
+	local arg padded
+
+	while (($#)); do
+		arg=$1
+		padded=$(pad_with_zeros $arg 14)
+		results+=($padded)
+		shift
+	done
+	printf_isatty %s "${results[*]}"
+}

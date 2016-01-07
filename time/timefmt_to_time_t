@@ -1,0 +1,28 @@
+#
+# takes a string in %Y%m%d%H%M%S and converts it to time_t
+#
+
+source ~/lib/sh/include
+require freturn
+
+timefmt_to_time_t ()
+{
+	local +i from=$1
+	local +i to
+
+	# `date -d', which we use to do the conversion, does not recognize
+	# time in the input format, so we use an intermediary format it does:
+	# %Y-%m-%dT%H%M%S
+
+	# first make the %Y-%m-%d part
+	to=${from:0:4}-${from:4:2}-${from:6:2}
+
+	# now separate date from time with a `T' and then use %H%M%S
+	to="${to} ${from:8:2}:${from:10:2}:${from:12:2}"
+
+	# result (seconds since UNIX epoch) without padding
+	#
+	to=$(date -d "$to" +%-s)
+
+	freturn $to
+}

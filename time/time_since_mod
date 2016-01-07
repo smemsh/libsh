@@ -1,0 +1,28 @@
+#
+# Returns the time since the file was last modified, in
+# minutes.  Intended for giving to find -mmin, possibly like
+# this:
+#
+#     find somedir/					\
+#	-mmin -$(($(time_since_mod somefile) + 10))	\
+#	-mmin +$(($(time_since_mod somefile) - 10))	\
+#
+# This would give a 20 second range based around mtime of
+# `somefile'.
+#
+# XXX TODO should return seconds, and have companion
+# depending on invocation that can report minutes, hours or
+# anything else
+
+require field
+
+time_since_mod ()
+{
+	local now lastmod
+	test -f $lastmod || return
+
+	now=`date +%s`
+	lastmod=`stat --format=%Y $1`
+
+	printf $((($now - $lastmod) / 60))
+}

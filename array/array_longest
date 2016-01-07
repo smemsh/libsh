@@ -1,0 +1,19 @@
+#
+# Returns the sequence member with the longest string length
+#
+
+source ~/lib/sh/include
+require freturn
+
+array_longest ()
+{
+	local -i longest i n
+
+	for ((i = 1; i < $#; i++)); do
+		eval n=\${#$i}
+		((n > longest)) &&
+			longest=$n
+	done
+
+	freturn $longest
+}

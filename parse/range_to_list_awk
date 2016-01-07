@@ -1,0 +1,59 @@
+#
+# break a range list down into its component pairs of start-end ranges,
+# unrolled for giving to awk as field ranges
+# (translates "1,3,9-12,10-" into "1-1,3-3,9-12,10-0")
+#
+#
+range_to_list_awk ()
+{
+	(($# == 1)) || return 1
+
+	local range=$1
+	local rangepattern='^([[:digit:]]*)(-{0,1})([[:digit:]]*)$'
+	local rangedelimiter=','
+	local begin dash end portion
+
+	# NOTE: we use '0' to placehold for NF because we can't seem
+	# to get NF the string to be evaluated as a dynamic variable
+	#
+	local max=0
+
+	local -a resultlist=()
+
+	# iterate through each delimiter-separated list given
+	#
+	while [[ "$range" ]]
+	do
+		# strip out the first delimited portion for this loop
+		#
+		eval portion=\${range%%${rangedelimiter}\*}
+		range=${range:$((${#portion}+1))} # remainder for next loop
+
+		# impose a rewrite on the given ranges into
+		# a standard range form:
+		#
+		#     `begin-' -> `begin-$max'
+		#     `number' -> `number-number'
+		#     `begin-end' -> no change
+		#
+		# iteration logic can then assume only the
+		# `begin-end' form is output
+		#
+		[[ $portion =~ $rangepattern ]] || break
+
+		begin=${BASH_REMATCH[1]}
+		dash=${BASH_REMATCH[2]}
+		end=${BASH_REMATCH[3]}
+
+		if ! [[ $dash ]]; then portion="$begin-$begin";
+		elif ! [[ $end ]]; then portion="$begin-$max";
+		else portion="$begin-$end"
+		fi
+
+		resultlist+=($portion)
+	done
+
+	local IFS=,; echo -n "${resultlist[*]}"
+}
+
+# vim:syn=sh:

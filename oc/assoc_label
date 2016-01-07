@@ -1,0 +1,18 @@
+#
+# returns just the label component (last word) of an ocassoc string
+#
+
+require assoc_split
+require bomb
+
+assoc_label ()
+{
+	local assocs=()
+	local IFS; unset IFS
+
+	(($# == 1)) ||
+		bomb "requires one arg only"
+
+	assocs=($(assoc_split $1))
+	printf ${assocs[@]: -1: 1} # note: spaces needed for negative offsets
+}

@@ -1,0 +1,85 @@
+#
+# routines used when debugging the library...
+#
+
+debug_tabs=(
+	$'\t'
+	$'\t\t'
+	$'\t\t\t'
+	$'\t\t\t\t'
+	$'\t\t\t\t\t'
+	$'\t\t\t\t\t\t'
+	$'\t\t\t\t\t\t\t'
+	$'\t\t\t\t\t\t\t\t'
+	$'\t\t\t\t\t\t\t\t\t'
+	$'\t\t\t\t\t\t\t\t\t\t'
+	$'\t\t\t\t\t\t\t\t\t\t\t'
+	$'\t\t\t\t\t\t\t\t\t\t\t\t'
+	$'\t\t\t\t\t\t\t\t\t\t\t\t\t'
+	$'\t\t\t\t\t\t\t\t\t\t\t\t\t\t'
+	$'\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t'
+	$'\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t'
+	$'\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t'
+	$'\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t'
+	$'\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t'
+)
+
+debug_spaces=(
+	'  '
+	'    '
+	'      '
+	'        '
+	'          '
+	'            '
+	'              '
+	'                '
+	'                  '
+	'                    '
+	'                      '
+	'                        '
+	'                          '
+	'                            '
+	'                              '
+	'                                '
+	'                                  '
+	'                                    '
+	'                                      '
+)
+
+# TODO: unfinished
+debug_calltrace_fd3 {LIBSH_}>&1
+{
+	return
+	exec 
+	declare -x \
+		PS4='+ $BASHPID: $FUNCNAME: ' \
+		BASH_XTRACEFD=3 \
+		debug=1
+	set -x
+}
+
+do_debug ()
+{
+	local i
+	local -a call_stack=(${FUNCNAME[@]})
+#	echo -n "${debug_spaces[${#FUNCNAME[@]} - 2]}${FUNCNAME[1]}:" 1>&2 #1>&3
+	printf "DEBUG: %3d: %s: %s\n"					\
+		$((${#FUNCNAME[@]} - 2))				\
+		${FUNCNAME[1]}						\
+		"$BASH_COMMAND"						\
+		1>&2
+}
+
+debug_functrace_on ()
+{
+	set -o functrace
+	shopt -s extdebug
+	trap do_debug DEBUG
+}
+
+debug_functrace_off ()
+{
+	set +o functrace
+	shopt -u extdebug
+	trap DEBUG
+}

@@ -1,0 +1,6 @@
+#!/bin/bash
+
+lines ()
+{
+	gawk -v RS="\x20" '{print}'
+}

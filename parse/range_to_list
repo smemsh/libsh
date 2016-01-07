@@ -1,0 +1,76 @@
+#
+# break a range list down into its components, unrolled
+# (translates "1,3,9-12,10-" into "1 3 9 10 11 12 10 11 12")
+#
+# note: requires maxlen arg.  to put into awk native format as start-end
+# ranges, use the companion `range_to_list_awk()'
+#
+range_to_list ()
+{
+	local -i len i
+
+	local portion dash
+
+	local -a resultlist
+
+	local arg=$1 max=$2
+
+	local rangepattern='^([[:digit:]]*)(-{0,1})([[:digit:]]*)$'
+	local rangedelimiter=','
+	local shellfalse=1
+	
+	# although these are numbers, they must not have the
+	# integer attribute set because otherwise a null one
+	# expands to 0 and we cannot differentiate between
+	# that and lack of given arg
+	#
+	local start end
+
+	# two args is the only format and is required
+	#
+	(($# != 2)) && return $shellfalse
+
+	# iterate through each delimiter-separated list given
+	#
+	while [[ "$arg" ]]
+	do
+		# strip out the first delimited portion for this loop
+		#
+		eval portion=\${arg%%${rangedelimiter}\*}
+		len=${#portion}
+		arg=${arg:len+1}
+
+		# the special case of field 0 is a
+		# substitute for "all fields" in the rangelist
+		#
+		[[ "$portion" == '0' ]] && portion="1-$max"
+
+		# impose a rewrite on the given ranges into
+		# a standard range form:
+		#
+		#     `start-' -> `start-max'
+		#     `number' -> `number-number'
+		#     `start-end' -> no change
+		#
+		# iteration logic can then assume only the
+		# `start-end' form is used
+		#
+		[[ $portion =~ $rangepattern ]] || return $shellfalse
+		start=${BASH_REMATCH[1]}
+		dash=${BASH_REMATCH[2]}
+		end=${BASH_REMATCH[3]}
+
+		if [[ "$dash" ]]
+		then end=${end:-$max}
+		else end=$start; dash='-'
+		fi
+
+		for ((i = start; i <= end; i++)); do
+			resultlist+=($i)
+		done
+	done
+
+	echo ${resultlist[@]}
+}
+
+# vim:syn=sh:

@@ -1,0 +1,10 @@
+#
+# setarr arrname zerothval onethval twothval ...
+#
+
+setarr ()
+{
+	local v=$1
+	shift
+	eval $v=\(\"\$@\"\);
+}

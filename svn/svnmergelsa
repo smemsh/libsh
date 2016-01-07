@@ -1,0 +1,20 @@
+#
+# list all available merges from all source branches
+#
+
+
+svnmergelsa ()
+{
+	dir=${1:-.}
+
+	# in case there aren't multiple source dirs to begin with
+	#
+	svnmerge avail $dir &> /dev/null && { svnmerge avail $dir; return; }
+
+	for source in $(
+		svnmerge avail $dir 2>&1 |
+		grep /etcs/
+	); do
+		svnmerge avail -S $source $dir
+	done
+}

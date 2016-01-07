@@ -1,0 +1,27 @@
+#
+#   one-arg: all variables of pid $1 in var=val
+# multi-arg: only specified env $2..$n of pid $1 in var=val
+#
+# todo: trailing '=' on variables gets just value (in exe wrapper?)
+# todo: envd so we get unexported variables, possibly functions
+#
+
+pidenv ()
+{
+	local pid=$1; shift
+	local envfile=/proc/$pid/environ
+	local varval var val v
+
+	test -f $envfile || exit 1
+
+	if (($# == 0)); then
+		# one arg case
+		tr '\0' '\n' < $envfile
+	else
+		# multi-arg case
+		while read -rsd $'\0' varval; do
+			var=${varval%=*}; val=${varval#*=}
+			for v; do [[ $v == $var ]] && echo "$var=$val"; done
+		done < $envfile
+	fi
+}

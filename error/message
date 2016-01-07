@@ -1,0 +1,35 @@
+#
+# error message to stderr, with optional termination
+# depending on invocation name:
+#
+#	warn:  do not exit
+#	bomb:  exit
+#	error: exit
+#
+# safety: if we aren't at the base invocation level, try to warn
+#
+
+require get_invocation_name
+
+message ()
+{
+	local message="$@"
+	local progname=`get_invocation_name`
+	local stackdepth=$((${#FUNCNAME[@]} - 2))
+	local i callstack
+
+	for ((i = stackdepth; i > 1; i--)); do
+		callstack+="${FUNCNAME[i]}: "; done
+
+	echo "${progname}: ${callstack}${message}" | fmt -tw 78 >&2
+
+	if ((LIBSH_ERROR_EXIT)); then
+		((BASH_SUBSHELL)) &&
+		    echo "warning: exit called from subshell" >&2
+		exit 1
+	fi
+}
+
+warn  () { LIBSH_ERROR_EXIT=0 message "$@"; } # do not exit
+bomb  () { LIBSH_ERROR_EXIT=1 message "$@"; } # exit 1
+error () { LIBSH_ERROR_EXIT=1 message "$@"; } # identical to bomb()

@@ -1,0 +1,10 @@
+#
+
+require tw_assoc_split
+require bomb
+
+tw_assoc_exists ()
+{
+	(($# == 1)) || bomb "only one arg"
+	task `tw_assoc_split $1` _ids &>/dev/null
+}

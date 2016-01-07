@@ -1,0 +1,17 @@
+#
+# we like to fit taskwarrior strings into 80 characters including the label
+#
+##############################################################################
+
+tw_desc_sane ()
+{
+	local label=$1
+	local desc="$2"
+	local full="$label: $desc"
+
+	if (($# != 2)); then
+		false; return; fi
+
+	if ((${#full} > 79)); then
+		false; return; fi
+}
