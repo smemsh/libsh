@@ -1,6 +1,6 @@
 #
 # libsh
-#   source file inclusion subsystem (i.e. "shell library")
+#   shell function collection, with inclusion subsystem
 #
 # desc:
 #   selectively import individual functions or groups of related
