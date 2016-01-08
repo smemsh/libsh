@@ -43,6 +43,26 @@ Usage
 #. use ``include`` and ``require`` within libs to declare interdependencies
 
 
+Example
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+    $ git clone -q https://github.com/smemsh/libsh ~/lib/sh
+
+    $ cat << . > test.sh
+    source ~/lib/sh/include
+    include time setenv
+    require field pidenv
+    setenv now $(fecho time_t_to_timefmt `date +%s`)
+    echo "$(now) is $now for window $(field = 2 <<< $(pidenv $$ WINDOWID))"
+    .
+
+    $ bash test.sh
+    20160108120010 is 20160108120010 for window 4194311
+
+..
+
+
 Status
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
