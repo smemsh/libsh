@@ -33,7 +33,7 @@ Interface
 Usage
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#. source this file to bring in ``require`` and ``include`` functions
+#. source the ``include`` file from your script
 #. place all library functions in subdirs of this file's location
 
    - use one file per function, (add symlinks for each func name if more)
