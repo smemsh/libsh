@@ -184,7 +184,6 @@ allinclude ()
 #
 noinclude ()
 {
-	for var in $(compgen -A variable LIBSH_)
-	do unset $var
-	done
+	for var in $(compgen -A variable LIBSH_); do
+		unset $var; done
 }
