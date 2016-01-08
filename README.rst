@@ -3,7 +3,7 @@ libsh
 
 *"lib shell"*
 
-Shell function collection, with inclusion subsystem
+Shell function include subsystem, with sample function library
 
 | scott@smemsh.net
 | http://smemsh.net/src/libsh/
