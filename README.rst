@@ -25,8 +25,8 @@ the single ``include`` file is needed to start your own library.
 Interface
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-:require: import single function
-:include: import group of related functions
+:require: import single function from the library (single file)
+:include: import group of related functions (entire directory)
 
 
 Usage
