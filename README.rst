@@ -22,7 +22,7 @@ author for his own projects).  None of them are necessary; only
 the single ``include`` file is needed to start your own library.
 
 
-Functions
+Interface
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 :require: import single function
