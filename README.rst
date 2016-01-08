@@ -47,6 +47,7 @@ Example
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
+
     $ git clone -q https://github.com/smemsh/libsh ~/lib/sh
 
     $ cat << . > test.sh
