@@ -130,30 +130,33 @@ require ()
 #
 include ()
 {
-	local sourcedir match i
+	local sourcedir match arg i
 	local -a matched
 
-	sourcedir=$LIBSH_BASEDIR/$1
+	for arg
+	do
+		sourcedir=$LIBSH_BASEDIR/$arg
 
-	(($# < 1)) &&
-		abort 55 "required argument missing"
+		(($# < 1)) &&
+			abort 55 "required argument missing"
 
-	[[ $sourcedir =~ [^[:alnum:]_/-] ]] &&
-		abort 60 "srcpath bad char"
+		[[ $sourcedir =~ [^[:alnum:]_/-] ]] &&
+			abort 60 "srcpath bad char"
 
-	# remember this is ok condition, we don't want error
-	# output here and don't want to end up calling exit()
-	#
-	# todo: why is it ok to happen? echo with debug here,
-	# what is getting inserted that keeps failing?
-	#
-	test -d $sourcedir || return 65
+		# remember this is ok condition, we don't want error
+		# output here and don't want to end up calling exit()
+		#
+		# todo: why is it ok to happen? echo with debug here,
+		# what is getting inserted that keeps failing?
+		#
+		test -d $sourcedir || return 65
 
-	matched=($(compgen -G "$sourcedir/*"))
-	for ((i = 0; i < ${#matched[@]}; i++)); do
-		match=${matched[i]}
-		match=${match##*/}
-		require $match || abort $? "bad match: '$match'"
+		matched=($(compgen -G "$sourcedir/*"))
+		for ((i = 0; i < ${#matched[@]}; i++)); do
+			match=${matched[i]}
+			match=${match##*/}
+			require $match || abort $? "bad match: '$match'"
+		done
 	done
 }
 
