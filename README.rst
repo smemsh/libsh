@@ -34,9 +34,11 @@ Usage
 
 #. source this file to bring in ``require`` and ``include`` functions
 #. place all library functions in subdirs of this file's location
+
     - use one file per function, (add symlinks for each func name if more)
     - each source file name corresponds to a ``require`` (single file sourced)
     - each subdirectory corresponds to an ``include`` (all in dir are sourced)
+
 #. use ``include`` and ``require`` within libs to declare interdependencies
 
 
