@@ -103,8 +103,7 @@ require ()
 	#
 	if source $matched
 	then
-		# without "eval" this breaks! even using ': var=""' !
-		eval LIBSH_SOURCES_$sourcefile= # just 'declare' breaks!
+		eval $cachevar=
 	else
 		abort 25 "source of '$matched' failed"
 	fi
