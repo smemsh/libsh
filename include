@@ -69,7 +69,7 @@ require ()
 	# redefining the functions and causing loops
 	#
 	cachevar=LIBSH_SOURCES_$sourcefile
-	[[ $cachevar ]] &&
+	[[ ${!cachevar} ]] &&
 		return
 
 	# rely on shell globbing to find the source file for
