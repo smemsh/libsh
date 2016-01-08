@@ -130,9 +130,7 @@ require ()
 #
 include ()
 {
-	local -i i
-	local +i sourcedir
-	local +i match
+	local sourcedir match i
 	local -a matched
 
 	sourcedir=$LIBSH_BASEDIR/$1
@@ -166,8 +164,7 @@ include ()
 #
 allinclude ()
 {
-	local -i i
-	local +i match
+	local match i
 	local -a matched
 
 	(($# == 0)) || return 100
