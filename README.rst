@@ -18,8 +18,9 @@ functions into the shell environment, without having to track
 dependencies, source file location, or source order.
 
 Krufty collection of shell functions provided (collected by
-author for his own projects).  None of them are necessary; only
-the single ``include`` file is needed to start your own library.
+author for his own projects).  None of them are necessary, or
+very interesting; only the single ``include`` file is needed to
+start your own library.
 
 
 Interface
