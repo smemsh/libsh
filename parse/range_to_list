@@ -7,28 +7,20 @@
 #
 range_to_list ()
 {
-	local -i len i
-
-	local portion dash
-
-	local -a resultlist
+	local len portion dash i
+	local start end
 
 	local arg=$1 max=$2
 
 	local rangepattern='^([[:digit:]]*)(-{0,1})([[:digit:]]*)$'
 	local rangedelimiter=','
-	local shellfalse=1
 	
-	# although these are numbers, they must not have the
-	# integer attribute set because otherwise a null one
-	# expands to 0 and we cannot differentiate between
-	# that and lack of given arg
-	#
-	local start end
+	local -a resultlist
 
 	# two args is the only format and is required
 	#
-	(($# != 2)) && return $shellfalse
+	(($# != 2)) &&
+		{ false; return;}
 
 	# iterate through each delimiter-separated list given
 	#
@@ -55,7 +47,9 @@ range_to_list ()
 		# iteration logic can then assume only the
 		# `start-end' form is used
 		#
-		[[ $portion =~ $rangepattern ]] || return $shellfalse
+		[[ $portion =~ $rangepattern ]] ||
+			{ false; return; }
+
 		start=${BASH_REMATCH[1]}
 		dash=${BASH_REMATCH[2]}
 		end=${BASH_REMATCH[3]}

@@ -58,19 +58,17 @@ field ()
 		indelim \
 		outdelim
 
-	local shellfalse=1
-
 	case $# in
 	(3) indelim="$1" outdelim="$2" rangearg="$3" ;;
 	(2) indelim="$1" outdelim=' '  rangearg="$2" ;;
 	(1) indelim=' '  outdelim=' '  rangearg="$1" ;;
-	(*) return $shellfalse;;
+	(*) false; return;;
 	esac
 
 	# we only handle single-character delimiters right now
 	#
-	((${#indelim} == 1)) || return $shellfalse;
-	((${#outdelim} == 1)) || return $shellfalse;
+	((${#indelim} == 1)) || { false; return; }
+	((${#outdelim} == 1)) || { false; return; }
 
 	# ugly hack: we need to break on whitespace, not
 	# just spaces, i.e. to include tabs (and newlines
