@@ -1,0 +1,34 @@
+#
+
+# Converts a time with an optional hour, day or week suffix
+# (simple one-char h, d, w) to a number of hours and prints
+# on stdout.  If no suffix is given, the number is printed
+# unchanged.  XXX TODO handle other time units
+#
+unsuffix_time ()
+{
+	local input=$1
+	local multiplier
+	local num
+	local suffix
+
+	[[ $input =~ '^([[:digit:]]+)([hdw]*)' ]]
+
+	num=${BASH_REMATCH[1]}
+	suf=${BASH_REMATCH[2]}
+
+	if [[ $suf ]]
+	then
+		case $suf in
+		(h) multiplier=1;;
+		(d) multiplier=24;;
+		(w) multiplier=$((24 * 7));;
+		esac
+	else
+		multiplier=1
+	fi
+
+	let "num *= multiplier"
+
+	printf %u $num
+}

@@ -1,0 +1,56 @@
+#
+# Routines to determine array membership.
+#
+# These are slow, no doubt; if speed is desired over
+# elegance, use:
+#
+#   IFS=$'\n'; echo "${something[*]}" | grep -c
+#
+
+require array_count
+
+#
+# Tests if the array $1 contains a member value $2,
+# regardless of how many members have this value
+#
+array_ismember ()
+{
+    local array=$1
+    local member="$2"
+    local arrlen=`array_count $array`
+
+    for ((i = 0; i < arrlen; i++))
+    do eval [[ "\${${array}[i]}" == "\$member" ]] && return 0;
+    done
+
+    return 1
+}
+
+#
+# Tests if the array $1 contains a member value $2, and only
+# returns true if it's uniquely so.
+#
+array_ismember_unique ()
+{
+    local array=$1
+    local member="$2"
+    local arrlen=`array_count $array`
+
+    local already # have we seen this one already?
+
+    for ((i = 0; i < arrlen; i++))
+    do
+        if eval [[ "\${${array}[i]}" == "\$member" ]]
+        then
+            if ((already))
+            then return 1
+            else already=1
+            fi
+        fi
+    done
+
+    if ((already))
+    then return 0
+    else return 1
+    fi
+}

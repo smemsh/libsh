@@ -1,0 +1,9 @@
+#
+
+clean_env_reinvoke_self ()
+{
+    if ! ((__CLEANENV))
+    then exec env - __CLEANENV=1 $0 "$@"
+    else unset __CLEANENV; return 0
+    fi
+}

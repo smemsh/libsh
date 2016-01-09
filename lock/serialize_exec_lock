@@ -1,0 +1,22 @@
+#
+
+serialize_exec_lock ()
+{
+	if [[ ${LOCKFILE:-} ]]
+	then bomb "not yet re-entrant"
+	else LOCKFILE=$(mktemp -u).lock
+	fi
+
+	if type -p lockfile &>/dev/null
+	then lockfile -r 3 $LOCKFILE || bomb "unable to obtain lock"
+	else bomb "no lockfile program"
+	fi
+}
+
+serialize_exec_unlock ()
+{
+	if test -f $LOCKFILE
+	then rm -f $LOCKFILE
+	else bomb "no lockfile to unlock"
+	fi
+}

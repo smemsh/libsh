@@ -1,0 +1,17 @@
+#
+
+lv_list_lvs ()
+{
+    lvs \
+        --noheadings \
+        -o lv_name \
+    2>/dev/null
+}
+
+lv_list_lv_vgs ()
+{
+    lvs \
+        --noheadings \
+        -o lv_name,vg_name \
+    2>/dev/null
+}

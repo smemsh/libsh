@@ -1,0 +1,14 @@
+#
+
+# strips the given file and writes to stdout:
+#
+#   - '#' comments through EOL
+#   - any whitespace leading up to them
+#   - all blank lines
+#
+strip_file_stdout ()
+{
+	cat "$1" |
+	sed -r 's/[[:blank:]]*#.*$//' |
+	sed -r '/^[[:blank:]]*$/d'
+}

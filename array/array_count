@@ -1,0 +1,12 @@
+#
+
+#
+# determines the count of indices for the given array $1,
+# useful for when we don't know the array name yet
+#
+array_count ()
+{
+    local array=$1
+
+    eval printf \${#${array}\[@\]}
+}

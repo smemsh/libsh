@@ -1,0 +1,24 @@
+#
+
+vg_freespace_gb ()
+{
+    local vg=$1
+
+    local extent_size
+    local extent_free
+    local free_space_kbytes
+
+    extent_size=$(
+        vgdisplay -c $vg 2>/dev/null |
+        awk -F : '{print $13}'
+    )
+
+    extent_free=$(
+        vgdisplay -c $vg 2>/dev/null |
+        awk -F : '{print $16}'
+    )
+
+    free_space_kbytes=$((extent_size * extent_free))
+
+    printf $((free_space_kbytes >> 20))
+}

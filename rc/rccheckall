@@ -1,0 +1,29 @@
+#
+
+require rcinit
+require warn
+
+# checks that all configured options have a setting, and executes the given
+# function if not
+#
+rccheckall ()
+{
+	local nopts=$LIBSH_RC_NUMOPTS
+	local i errors
+
+	((nopts)) || warn "no configured options"
+
+	for ((i = 0; i < nopts; i++))
+	do
+		var=${RCPREFIX}${LIBSH_RC_LONGS[i]%:}
+		if ! [[ ${!var} ]]; then
+			warn "option \"${var#$RCPREFIX}\" required"
+			let errors++
+		fi
+	done
+
+	if ((errors))
+	then return 1
+	else return 0
+	fi
+}

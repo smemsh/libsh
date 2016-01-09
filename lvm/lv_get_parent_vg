@@ -1,0 +1,35 @@
+#
+
+require lv_list_lvs
+require lv_list_lv_vgs
+require array_ismember_unique
+
+lv_get_parent_vg ()
+{
+    local wantlv=$1
+
+    local i
+    local thislv
+    local thisvg
+
+    lvs=(`lv_list_lvs`)
+    array_ismember_unique lvs $wantlv || return 1
+
+    lvvgs=(`lv_list_lv_vgs`)
+
+    for ((i = 0; i < ${#lvvgs[@]}; i += 2))
+    do
+        thislv=${lvvgs[i]}
+        thisvg=${lvvgs[i+1]}
+
+        [[ "$thislv" ]] || return 1 # catch loops
+
+        if [[ $thislv == $wantlv ]]
+        then
+            printf $thisvg
+            return 0
+        fi
+    done
+
+    return 1
+}
