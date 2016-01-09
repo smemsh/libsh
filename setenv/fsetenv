@@ -78,7 +78,8 @@ freturn ()
 	(($?)) && {
 		echo $FUNCNAME: error in assignment
 		fdepth=0
-		return 1
+		false
+		return
 	}
 
 	return $lastret

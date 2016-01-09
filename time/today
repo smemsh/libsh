@@ -20,7 +20,7 @@ dayfunc ()
 	if   [[ $f == 'yesterday' ]]; then time_time_t=$prevday_time_t
 	elif [[ $f == 'tomorrow'  ]]; then time_time_t=$nextday_time_t
 	elif [[ $f == 'today'	  ]]; then time_time_t=$now_time_t
-	else return 1
+	else false; return
 	fi
 
 	printf_isatty $(date -d @$time_time_t +$output_datefmt)

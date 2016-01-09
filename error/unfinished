@@ -4,4 +4,4 @@
 #
 
 require warn
-unfinished () { warn "aborting to caller"; return 0; }
+unfinished () { warn "aborting to caller"; true; return; }

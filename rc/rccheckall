@@ -23,7 +23,7 @@ rccheckall ()
 	done
 
 	if ((errors))
-	then return 1
-	else return 0
+	then false
+	else true
 	fi
 }

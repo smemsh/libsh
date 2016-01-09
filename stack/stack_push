@@ -7,6 +7,8 @@ stack_push ()
 	local stackname=$1
 	local topush="$2"
 
-	array_exists $stackname || { echo "array must exist"; return 1; }
+	array_exists $stackname ||
+		{ echo "array must exist"; false; return; }
+
 	eval $stackname+=\(\$topush\)
 }

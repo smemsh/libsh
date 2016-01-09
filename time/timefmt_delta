@@ -31,14 +31,14 @@ timefmt_delta_time_t ()
 
 	(($# == 2)) || {
 		echo "$FUNCNAME: needs two dates in \$HISTTIMEFORMAT format"
-		return 1
+		false; return
 	}
 
 	fsetenv timet1 timefmt_to_time_t $timefmt1 ||
-		{ echo "wrong1"; return 1; }
+		{ echo "wrong1"; false; return; }
 
 	fsetenv timet2 timefmt_to_time_t $timefmt2 ||
-		{ echo "wrong2"; return 1; }
+		{ echo "wrong2"; false; return; }
 
 	if ((timet1 > timet2)); then
 		delta=$((timet1 - timet2))

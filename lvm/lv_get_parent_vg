@@ -13,7 +13,8 @@ lv_get_parent_vg ()
     local thisvg
 
     lvs=(`lv_list_lvs`)
-    array_ismember_unique lvs $wantlv || return 1
+    array_ismember_unique lvs $wantlv ||
+        return
 
     lvvgs=(`lv_list_lv_vgs`)
 
@@ -22,14 +23,15 @@ lv_get_parent_vg ()
         thislv=${lvvgs[i]}
         thisvg=${lvvgs[i+1]}
 
-        [[ "$thislv" ]] || return 1 # catch loops
+        [[ "$thislv" ]] ||
+            return # catch loops
 
         if [[ $thislv == $wantlv ]]
         then
             printf $thisvg
-            return 0
+            return
         fi
     done
 
-    return 1
+    false
 }

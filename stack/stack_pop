@@ -8,7 +8,8 @@ stack_pop ()
 	local stackname=$1
 	eval local nents=\${#${stackname}\[@\]}
 
-	((nents > 0)) || return 1
+	((nents > 0)) ||
+		{ false; return; }
 
 	eval freturn "\${${stackname}[--nents]}"
 	eval unset \${${stackname}\[nents\]}

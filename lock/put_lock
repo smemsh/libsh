@@ -6,8 +6,10 @@ put_lock ()
 	local +i unlocked=$1
 	local +i locked=$2
 
-	mv $locked $unlocked && return
+	mv $locked $unlocked &&
+        return
 
 	echo "failed to put the lock"
-	return 1
+
+	false
 }

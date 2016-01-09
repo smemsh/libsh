@@ -5,7 +5,8 @@
 
 svndirs ()
 {
-	pushd "${1:-.}" &> /dev/null || { echo failure; return 1; }
+	pushd "${1:-.}" &> /dev/null ||
+		{ echo "failure"; false; return; }
 
 	find \
 		-maxdepth 2 		\

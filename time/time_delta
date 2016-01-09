@@ -17,7 +17,7 @@ time_delta ()
 
 	(($# == 2)) || {
 		echo "$FUNCNAME: needs two times in HH:MM or H:MM format"
-		return 1
+		false; return
 	}
 
 	pattern='([[:digit:]]{1,2}):([[:digit:]]{2})'

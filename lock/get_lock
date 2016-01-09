@@ -29,5 +29,5 @@ get_lock ()
 		}
 	done
 	
-	return 1
+	false
 }

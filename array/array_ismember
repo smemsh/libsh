@@ -19,11 +19,9 @@ array_ismember ()
     local member="$2"
     local arrlen=`array_count $array`
 
-    for ((i = 0; i < arrlen; i++))
-    do eval [[ "\${${array}[i]}" == "\$member" ]] && return 0;
-    done
-
-    return 1
+    for ((i = 0; i < arrlen; i++)); do
+        if [[ "\${${array}[i]}" == "\$member" ]]; then
+            return; fi; done
 }
 
 #
@@ -43,14 +41,11 @@ array_ismember_unique ()
         if eval [[ "\${${array}[i]}" == "\$member" ]]
         then
             if ((already))
-            then return 1
-            else already=1
+            then false; return
+            else let already++
             fi
         fi
     done
 
-    if ((already))
-    then return 0
-    else return 1
-    fi
+    true
 }

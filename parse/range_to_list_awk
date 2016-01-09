@@ -6,7 +6,8 @@
 #
 range_to_list_awk ()
 {
-	(($# == 1)) || return 1
+	(($# == 1)) ||
+        { false; return; }
 
 	local range=$1
 	local rangepattern='^([[:digit:]]*)(-{0,1})([[:digit:]]*)$'
