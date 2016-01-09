@@ -21,13 +21,13 @@
 #
 ##############################################################################
 
-abort () { echo "include: ERROR: $2, aborting..." >&2; exit $1; }
+abort () { echo "include: ERROR: $2, aborting..." >&2; return $1; }
 
 # we cannot be called from within a subshell, to ensure that
-# e.g. 'exit' works here... which we do on include errors
+# e.g. 'exit' works here...
 #
 (($BASHPID != $$)) &&
-	abort 1 "used from within subshell"
+	abort 1 "include script used from within subshell, aborting..."
 
 # so we can be used in different places without hardcoding a
 # base directory, we base everything relative to the
@@ -43,7 +43,8 @@ LIBSH_BASEDIR=${LIBSH_BASEDIR:-${BASH_SOURCE%*/*}}
 # todo: each function should have a version test
 # todo: alternate implementations for older versions
 #
-((BASH_VERSINFO[0] < 4)) && abort 3 "at least bash4 required"
+((BASH_VERSINFO[0] < 4)) &&
+	abort 3 "at least bash4 required"
 
 ##############################################################################
 
