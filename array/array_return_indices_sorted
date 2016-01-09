@@ -41,7 +41,6 @@
 # copy.
 #
 
-source ~/lib/sh/include
 require freturn
 
 array_return_indices_sorted ()

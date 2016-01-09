@@ -3,7 +3,6 @@
 # run this at the beginning of the critical section
 #
 
-source ~/lib/sh/include
 require freturn
 
 # pass it the name of the lockfile

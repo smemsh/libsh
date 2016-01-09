@@ -3,8 +3,6 @@
 # time representation of the interval length
 #
 
-source ~/lib/sh/include
-
 require fsetenv
 require freturn
 

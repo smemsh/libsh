@@ -1,6 +1,5 @@
 #
 
-source ~/lib/sh/include
 require freturn
 
 strip_leading_zeros ()

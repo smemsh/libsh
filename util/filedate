@@ -4,7 +4,6 @@
 # command line
 #
 
-source ~/lib/sh/include
 require field
 
 filedate ()

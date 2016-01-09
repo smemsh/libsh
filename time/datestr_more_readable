@@ -3,7 +3,6 @@
 # output: %m/%d@%H:%M
 #
 
-source ~/lib/sh/include
 require freturn
 
 make_human_readable_absolute_datestr ()

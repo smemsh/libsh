@@ -2,7 +2,6 @@
 # Returns the sequence member with the longest string length
 #
 
-source ~/lib/sh/include
 require freturn
 
 array_longest ()

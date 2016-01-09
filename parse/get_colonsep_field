@@ -2,7 +2,6 @@
 # get designated field from a colon separated string
 #
 
-source ~/lib/sh/include
 require freturn
 
 function \

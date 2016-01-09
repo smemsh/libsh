@@ -6,7 +6,6 @@
 # output is in this same format
 #
 
-source ~/lib/sh/include
 require time_t_to_readable
 
 time_delta ()

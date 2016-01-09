@@ -2,7 +2,6 @@
 # Returns a sequence reversed from the original input
 #
 
-source ~/lib/sh/include
 require freturn
 
 array_reverse ()

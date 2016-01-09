@@ -1,6 +1,5 @@
 #
 
-source ~/lib/sh/include
 require array_exists
 
 stack_push ()

@@ -9,7 +9,6 @@
 # return value depends on the function name used to invoke
 #
 
-source ~/lib/sh/include
 require fsetenv
 require freturn
 require timefmt_to_time_t

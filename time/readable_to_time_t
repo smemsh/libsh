@@ -10,8 +10,6 @@
 # returned by this function.
 #
 
-source ~/lib/sh/include
-
 require fsetenv
 require freturn
 

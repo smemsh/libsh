@@ -2,7 +2,6 @@
 # takes a string in %Y%m%d%H%M%S and converts it to time_t
 #
 
-source ~/lib/sh/include
 require freturn
 
 timefmt_to_time_t ()
