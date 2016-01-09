@@ -21,13 +21,14 @@
 #
 ##############################################################################
 
-abort () { echo "include: ERROR: $2, aborting..." >&2; return $1; }
-
 # we cannot be called from within a subshell, to ensure that
-# e.g. 'exit' works here...
+# e.g. 'exit' works later...
 #
-(($BASHPID != $$)) &&
-	abort 1 "include script used from within subshell, aborting..."
+if (($BASHPID != $$)); then
+	echo "ERROR: 'include' script used within subshell, aborting..." >&2
+	false
+	return
+fi
 
 # so we can be used in different places without hardcoding a
 # base directory, we base everything relative to the
@@ -43,8 +44,11 @@ LIBSH_BASEDIR=${LIBSH_BASEDIR:-${BASH_SOURCE%*/*}}
 # todo: each function should have a version test
 # todo: alternate implementations for older versions
 #
-((BASH_VERSINFO[0] < 4)) &&
-	abort 3 "at least bash4 required"
+if ((BASH_VERSINFO[0] < 4)); then
+	echo "ERROR: at least bash4 required, aborting..." >&2
+	false
+	return
+fi
 
 ##############################################################################
 
@@ -53,77 +57,74 @@ LIBSH_BASEDIR=${LIBSH_BASEDIR:-${BASH_SOURCE%*/*}}
 #
 require ()
 {
-	local sourcefile cachevar
+	local sourcefile cachevar arg
 	local -a matched
 
-	sourcefile=$1
+	abort () { echo -e "require: ERROR: $2\n" \
+		   "skipping to next require" >&2; continue; }
 
-	(($# < 1)) &&
-		abort 5 "at least one arg required"
-	[[ $sourcefile =~ [^[:alnum:]_] ]] &&
-		abort 10 "include sourcefile has bogus filename chars"
+	if ! (($#)); then
+		echo "at least one arg required, aborting" >&2
+		false; return; fi
 
-	# use an environment variable to determine if we
-	# already sourced it and don't source more than once,
-	# so sourced files can themselves 'require' and
-	# 'include' each other without unnecessarily
-	# redefining the functions and causing loops
-	#
-	cachevar=LIBSH_SOURCES_$sourcefile
-	[[ ${!cachevar} ]] &&
-		return
+	for arg
+	do
+		sourcefile=$arg
 
-	# rely on shell globbing to find the source file for
-	# us, but don't require the user to have any
-	# particular glob settings (yes, this is needed)
-	#
-	matched=($(compgen -G "$LIBSH_BASEDIR/*/$sourcefile"))
+		[[ $sourcefile =~ [^[:alnum:]_] ]] &&
+			abort 10 "sourcefile '$sourcefile': bad chars in name"
 
-	# we actually have a flat namespace for the moment,
-	# despite the fact that we can group into separate
-	# directories; goal is for 'include' and 'require' to be
-	# as lightweight as possible
-	#
-	((${#matched[@]} == 1)) ||
-		abort 20 "only one match allowed"
+		# use an environment variable to determine if we
+		# already sourced it and don't source more than once,
+		# so sourced files can themselves 'require' and
+		# 'include' each other without unnecessarily
+		# redefining the functions and causing loops
+		#
+		cachevar=LIBSH_SOURCES_$sourcefile
+		[[ ${!cachevar} ]] &&
+			return
 
-	# skip stuff like no/ but we should be using ** later so
-	# this will have to be modified
-	#
-	test -d $matched &&
-		return
+		# rely on shell globbing to find the source file for
+		# us, but don't require the user to have any
+		# particular glob settings (yes, this is needed)
+		#
+		matched=($(compgen -G "$LIBSH_BASEDIR/*/$sourcefile"))
 
-	# should not happen
-	#
-	test -f $matched ||
-		abort 22 "impossible condition"
+		# we actually have a flat namespace for the moment,
+		# despite the fact that we can group into separate
+		# directories; goal is for 'include' and 'require' to be
+		# as lightweight as possible
+		#
+		((${#matched[@]} == 1)) ||
+			abort 20 "only one match allowed"
 
-	# at this point, all our sanity checks have concluded
-	# successfully, so we go ahead and read the requested
-	# sourcefile
-	#
-	if source $matched
-	then
-		eval $cachevar=
-	else
-		abort 25 "source of '$matched' failed"
-	fi
+		# skip stuff like no/ but we should be using ** later so
+		# this will have to be modified
+		#
+		test -d $matched &&
+			return
 
-	# recurse for any remaining arguments, to support
-	# mutli-arg "require" lines, etc
-	#
-	shift
+		# should not happen
+		#
+		test -f $matched ||
+			abort 22 "impossible condition"
 
-	if (($#))
-	then
-		if ! require $@
+		# at this point, all our sanity checks have concluded
+		# successfully, so we go ahead and read the requested
+		# sourcefile
+		#
+		if source $matched
 		then
-			abort $? "require failed after $matched, $# args left"
+			eval $cachevar=
+		else
+			abort 25 "source of '$matched' failed"
 		fi
-	else
-		true
-		return
-	fi
+
+		# continue with remaining arguments, to support
+		# mutli-arg "require" lines, etc
+		#
+		shift
+	done
 }
 
 # source all files in a subdirectory of the one this script
@@ -133,6 +134,13 @@ include ()
 {
 	local sourcedir match arg i
 	local -a matched
+
+	abort () { echo -e "include: ERROR: $2\n" \
+		   "skipping to next include" >&2; continue; }
+
+	if ! (($#)); then
+		echo "at least one arg required, aborting" >&2
+		false; return; fi
 
 	for arg
 	do
