@@ -89,6 +89,8 @@ require ()
 		# particular glob settings (yes, this is needed)
 		#
 		matched=($(compgen -G "$LIBSH_BASEDIR/*/$sourcefile"))
+		((${#matched[@]})) ||
+			abort 17 "no matching source file to include"
 
 		# we actually have a flat namespace for the moment,
 		# despite the fact that we can group into separate
