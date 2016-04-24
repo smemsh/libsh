@@ -1,31 +1,7 @@
 #
-# XXX should zeropad? or rely on the app that takes it?
-#
 
-require setenv
-require printf_isatty
-
-dayfunc ()
+today ()
 {
-	local daysecs output_datefmt
-	local now_time_t time_time_t prevday_time_t nextday_time_t
-	local f=${FUNCNAME[1]}
-
-	setenv daysecs		$((60 * 60 * 24))
-	setenv now_time_t	$(date +%s)
-	setenv prevday_time_t	$((now_time_t - daysecs))
-	setenv nextday_time_t	$((now_time_t + daysecs))
-	setenv output_datefmt	'%Y%m%d'
-
-	if   [[ $f == 'yesterday' ]]; then time_time_t=$prevday_time_t
-	elif [[ $f == 'tomorrow'  ]]; then time_time_t=$nextday_time_t
-	elif [[ $f == 'today'	  ]]; then time_time_t=$now_time_t
-	else false; return
-	fi
-
-	printf_isatty $(date -d @$time_time_t +$output_datefmt)
+	require printf_isatty
+	printf_isatty $(date -d today +%Y%m%d)
 }
-
-yesterday () { dayfunc $@; }
-tomorrow  () { dayfunc $@; }
-today	  () { dayfunc $@; }
