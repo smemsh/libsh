@@ -60,8 +60,8 @@ require ()
 	local sourcefile cachevar arg
 	local -a matched
 
-	abort () { echo -e "require: ERROR: $2\n" \
-		   "skipping to next require" >&2; continue; }
+	skip () { echo -e "require: \"$sourcefile\": ERROR: \n" \
+		"$1, skipping..." >&2; continue; }
 
 	if ! (($#)); then
 		echo "at least one arg required, aborting" >&2
@@ -72,7 +72,7 @@ require ()
 		sourcefile=$arg
 
 		[[ $sourcefile =~ [^[:alnum:]_] ]] &&
-			abort 10 "sourcefile '$sourcefile': bad chars in name"
+			skip "bad chars in name"
 
 		# use an environment variable to determine if we
 		# already sourced it and don't source more than once,
@@ -90,7 +90,7 @@ require ()
 		#
 		matched=($(compgen -G "$LIBSH_BASEDIR/*/$sourcefile"))
 		((${#matched[@]})) ||
-			abort 17 "no matching source file to include"
+			skip "no matching source file to include"
 
 		# we actually have a flat namespace for the moment,
 		# despite the fact that we can group into separate
@@ -98,7 +98,7 @@ require ()
 		# as lightweight as possible
 		#
 		((${#matched[@]} == 1)) ||
-			abort 20 "only one match allowed"
+			skip "only one match allowed"
 
 		# skip stuff like no/ but we should be using ** later so
 		# this will have to be modified
@@ -109,7 +109,7 @@ require ()
 		# should not happen
 		#
 		test -f $matched ||
-			abort 22 "impossible condition"
+			skip "impossible condition"
 
 		# at this point, all our sanity checks have concluded
 		# successfully, so we go ahead and read the requested
@@ -119,7 +119,7 @@ require ()
 		then
 			eval $cachevar=
 		else
-			abort 25 "source of '$matched' failed"
+			skip "source of '$matched' failed"
 		fi
 
 		# continue with remaining arguments, to support
@@ -137,8 +137,8 @@ include ()
 	local sourcedir match arg i
 	local -a matched
 
-	abort () { echo -e "include: ERROR: $2\n" \
-		   "skipping to next include" >&2; continue; }
+	skip () { echo -e "include: \"$sourcedir\": ERROR: \n" \
+		"$1, skipping..." >&2; continue; }
 
 	if ! (($#)); then
 		echo "at least one arg required, aborting" >&2
@@ -149,10 +149,10 @@ include ()
 		sourcedir=$LIBSH_BASEDIR/$arg
 
 		(($# < 1)) &&
-			abort 55 "required argument missing"
+			skip "required argument missing"
 
 		[[ $sourcedir =~ [^[:alnum:]_/-] ]] &&
-			abort 60 "srcpath bad char"
+			skip "srcpath bad char"
 
 		# remember this is ok condition, we don't want error
 		# output here and don't want to end up calling exit()
@@ -160,13 +160,15 @@ include ()
 		# todo: why is it ok to happen? echo with debug here,
 		# what is getting inserted that keeps failing?
 		#
-		test -d $sourcedir || return 65
+		test -d $sourcedir ||
+			return
 
 		matched=($(compgen -G "$sourcedir/*"))
 		for ((i = 0; i < ${#matched[@]}; i++)); do
 			match=${matched[i]}
 			match=${match##*/}
-			require $match || abort $? "bad match: '$match'"
+			require $match ||
+				skip $? "bad match: '$match'"
 		done
 	done
 }
