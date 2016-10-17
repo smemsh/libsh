@@ -12,7 +12,7 @@ pidenv ()
 	local envfile=/proc/$pid/environ
 	local varval var val v
 
-	test -f $envfile || exit 1
+	test -r $envfile || exit 1
 
 	if (($# == 0)); then
 		# one arg case
