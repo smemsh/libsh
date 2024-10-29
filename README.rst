@@ -1,6 +1,18 @@
 libsh
 ==============================================================================
 
+**DEVELOPMENT STOPPED**
+
+Python is a better use of time rather than something like libsh.
+Once it reaches a level of complexity there is little point in
+using bash anymore.
+
+So, development is stopped no more changes will be made to this
+repository **EOM**
+
+____
+
+
 *"lib shell"*
 
 Shell function include subsystem, with sample function library
@@ -62,16 +74,6 @@ Example
     20160108120010 is 20160108120010 for window 4194311
 
 ..
-
-
-Status
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-- used for many of author's personal projects
-- code in here is old; bash-1.14.7 was released version when started
-- some code might be broken or suboptimal, but much is in active use
-- not all code generalized; some doesn't belong here; working to split out
-- no other known users at this time (please notify author!)
 
 
 Rationale
