@@ -7,7 +7,7 @@ Shell function include subsystem, with sample function library
 
 | scott@smemsh.net
 | https://github.com/smemsh/libsh/
-| http://spdx.org/licenses/GPL-2.0
+| https://spdx.org/licenses/GPL-2.0
 
 
 Description
