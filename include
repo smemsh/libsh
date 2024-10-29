@@ -16,7 +16,7 @@
 #   - use 'include' and 'require' within source files for interdependencies
 #
 # scott@smemsh.net
-# http://smemsh.net/src/libsh/
+# https://github.com/smemsh/libsh/
 # http://spdx.org/licenses/GPL-2.0
 #
 ##############################################################################
